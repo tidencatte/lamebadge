@@ -1,7 +1,8 @@
 <?php
-	$repo = "zcf" or $_GET["repo"];
-	$url   = curl_init("http://github.com/api/v1/json/hydrapheetz/$repo/commit/master");
+	$repo     = $_GET["repo"];
+	$username = $_GET["username"];
 
+	$url   = curl_init("http://github.com/api/v1/json/$username/$repo/commit/master");
 	curl_setopt($url, CURLOPT_HEADER, false);
 	curl_setopt($url, CURLOPT_RETURNTRANSFER, true);
 
@@ -10,9 +11,6 @@
 
 	$arr = json_decode($json,true);
 	function dither_fill($image, $color) {
-		// fills an image with a 2x2 dithered pattern:
-		// x-
-		// -x
 		$_ix = imagesx($image);
 		$_iy = imagesy($image);
 		$offset = 0;
@@ -31,18 +29,16 @@
 		imagestring($image,$font,$x,$y, $string, $color);
 	}
 
-
 	$image = imagecreatetruecolor(240, 90);
 	$FILL_ALPHA       = imagecolorallocatealpha($image, 0, 0, 0, 50);
 	$FILL             = imagecolorallocatealpha($image, 255,255,255, 127);
 	$FILL_TEXT        = imagecolorallocatealpha($image, 255,255,255,0);
 	$FILL_TEXT_SHADOW = imagecolorallocatealpha($image, 0, 0, 0, 50);
-	/*header("Content-type: text/plain");
-	var_dump($arr);
-	print ($arr['commit']['id']);*/
+
 	header("content-type: image/png");
 	dither_fill($image, $FILL);
 	shadow_text($image, 1, 1, 5, "Git commits!", $FILL_TEXT, $FILL_TEXT_SHADOW);
+
 	// show only the first six characters of the commit id
 	shadow_text($image, 8, 13, 3, "Master [".substr($arr['commit']['id'], 0, 6)."]", $FILL_TEXT, $FILL_TEXT_SHADOW);
 	shadow_text($image, 16, 24, 2, $arr['commit']['message'], $FILL_TEXT, $FILL_TEXT_SHADOW);
